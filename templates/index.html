@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flask Chatbot</title>
+    <style>
+        /* Instagram-style gradient background */
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            flex-direction: column;
+        }
+
+        /* Chat container */
+        #chatbox {
+            width: 350px;
+            background: #ffffff;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            text-align: left;
+        }
+
+        /* Profile container */
+        #profile {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        #profile img {
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            margin-right: 10px;
+        }
+
+        #profile h2 {
+            color:rgb(232, 229, 235);
+            margin: 0;
+        }
+
+        /* Chat content (messages) */
+        #chat-content {
+            height: 300px;
+            overflow-y: auto;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* User & bot message bubbles */
+        .message {
+            padding: 10px 15px;
+            border-radius: 20px;
+            margin: 5px 0;
+            max-width: 75%;
+            word-wrap: break-word;
+        }
+
+        .user-message {
+            background: #fcb045;
+            align-self: flex-end;
+            color: black;
+        }
+
+        .bot-message {
+            background: #833ab4;
+            align-self: flex-start;
+            color: white;
+        }
+
+        /* Input field & button */
+        .input-container {
+            display: flex;
+            margin-top: 10px;
+        }
+
+        input {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 20px;
+            outline: none;
+            background: #f0f0f0;
+            font-size: 14px;
+        }
+
+        button {
+            background: #fd1d1d;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            margin-left: 5px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background:rgb(196, 62, 82);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="profile">
+    
+        <h2>Team Bukidnon Chatbot</h2>
+    </div>
+
+    <div id="chatbox">
+        <div id="chat-content"></div>
+
+        <div class="input-container">
+            <input type="text" id="user-input" placeholder="Type a message..." onkeypress="handleKeyPress(event)" />
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        function sendMessage() {
+            let userMessage = document.getElementById("user-input").value.trim();
+            if (userMessage === "") return;
+
+            let chatContent = document.getElementById("chat-content");
+            
+            // Add user message
+            let userMessageElement = document.createElement("div");
+            userMessageElement.className = "message user-message";
+            userMessageElement.textContent = userMessage;
+            chatContent.appendChild(userMessageElement);
+
+            document.getElementById("user-input").value = "";
+
+            fetch("/chat", {
+                method: "POST",
+                body: JSON.stringify({ message: userMessage }),
+                headers: { "Content-Type": "application/json" }
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Add bot response
+                let botMessageElement = document.createElement("div");
+                botMessageElement.className = "message bot-message";
+                botMessageElement.textContent = data.response;
+                chatContent.appendChild(botMessageElement);
+
+                // Auto-scroll to latest message
+                chatContent.scrollTop = chatContent.scrollHeight;
+            });
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === "Enter") {
+                sendMessage();
+            }
+        }
+    </script>
+
+</body>
+</html>
